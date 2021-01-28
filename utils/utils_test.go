@@ -2,11 +2,14 @@ package utils
 
 import (
 	"io/ioutil"
+	"path/filepath"
 	"testing"
 )
 
 const pathToDataVaccineVirus = "../testData/dataVaccineVirus.ma"
 const pathToDataWithoutVaccineVirus = "../testData/dataWithouVaccineVirus.ma"
+const pathToMayaFiles = "../testData/"
+const pathToMayaFilesRec = "../"
 
 func TestCheckVaccineVirusTrue(t *testing.T) {
 	mayaFile, err := ioutil.ReadFile(pathToDataVaccineVirus)
@@ -39,5 +42,40 @@ func TestDeleteVaccineVirus(t *testing.T) {
 	isViirusInFile := CheckVaccineVirus(clearData)
 	if isViirusInFile {
 		t.Error("Expected true, got", isViirusInFile)
+	}
+}
+
+func TestReturnMayaFilesFromDirCount(t *testing.T) {
+	mayaFiles, err := ReturnMayaFilesFromDir(pathToMayaFiles)
+	if err != nil {
+		t.Error(err)
+	}
+	lenMayaFiles := len(mayaFiles)
+	if lenMayaFiles != 2 {
+		t.Error("Expected 2, got", lenMayaFiles)
+	}
+}
+
+func TestReturnMayaFilesFromDirOnlyMa(t *testing.T) {
+	mayaFiles, err := ReturnMayaFilesFromDir(pathToMayaFiles)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, pathToFile := range mayaFiles {
+		fileExtension := filepath.Ext(pathToFile)
+		if fileExtension != ".ma" {
+			t.Error("Expected .ma file, got", pathToFile, fileExtension)
+		}
+	}
+}
+
+func TestReturnMayaFilesFromDirRecursively(t *testing.T) {
+	mayaFiles, err := ReturnMayaFilesFromDirRecursively(pathToMayaFilesRec)
+	if err != nil {
+		t.Error(err)
+	}
+	lenMayaFiles := len(mayaFiles)
+	if lenMayaFiles != 2 {
+		t.Error("Expected 2, got", lenMayaFiles)
 	}
 }
