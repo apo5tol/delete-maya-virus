@@ -18,6 +18,9 @@ func pressAnyKey() {
 }
 
 func main() {
+	recursive := flag.Bool("r", false, "recursive path traversal")
+	createBackup := flag.Bool("b", false, "make a backup copy of processed files")
+
 	flag.Parse()
 	argPath := flag.Arg(0)
 
@@ -40,14 +43,22 @@ func main() {
 
 	switch mode := fi.Mode(); {
 	case mode.IsDir():
-		files, err := returnMayaFilesFromDir(argPath)
-		if err != nil {
-			log.Fatal(err)
+		if *recursive {
+			files, err := utils.ReturnMayaFilesFromDirRecursively(argPath)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+			scannedMayaFiles = files
+		} else {
+			files, err := utils.ReturnMayaFilesFromDir(argPath)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+			scannedMayaFiles = files
 		}
-		scannedMayaFiles = files
 	case mode.IsRegular():
 		fileExtension := filepath.Ext(argPath)
-		if fileExtension != maFileExt {
+		if fileExtension != utils.MaFileExt {
 			log.Println("Only .ma files can be processed!")
 			return
 		}
@@ -56,6 +67,7 @@ func main() {
 
 	for _, pathToMayaScannedFile := range scannedMayaFiles {
 		mayaFileName := filepath.Base(pathToMayaScannedFile)
+		backupPath := pathToMayaScannedFile + ".backup"
 		mayaFileData, err := ioutil.ReadFile(pathToMayaScannedFile)
 		if err != nil {
 			log.Fatal("Can`t open maya file! -", mayaFileName, err.Error())
@@ -67,17 +79,29 @@ func main() {
 
 		if isVaccineVirusInFile {
 			log.Println("Vaccine virus found! Processing file... ", mayaFileName)
+			if *createBackup {
+				err := utils.CreateBuckup(backupPath, mayaFileData)
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+			}
 			mayaFileData = utils.DeleteVaccineVirus(mayaFileData)
 		}
 
 		if isMayaMelVirusInFile {
 			log.Println("MayaMelUIConfigurationFile virus found! Processing file... ", mayaFileName)
+			if *createBackup {
+				err := utils.CreateBuckup(backupPath, mayaFileData)
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+			}
 			mayaFileData = utils.DeleteMayaMelVirus(mayaFileData)
 		}
 
-		err = ioutil.WriteFile(pathToMayaScannedFile, mayaFileData, filePermission)
-		if err != nil {
-			log.Fatal(err.Error())
+		writeErr := ioutil.WriteFile(pathToMayaScannedFile, mayaFileData, utils.FilePermission)
+		if writeErr != nil {
+			log.Fatal(writeErr.Error())
 		}
 	}
 	log.Println("All files are checked.")

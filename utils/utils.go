@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 )
@@ -15,6 +16,12 @@ var breedGeneNodeRegexp = regexp.MustCompile("createNode script -n \"breed_gene\
 
 var mayaMelVirusTemplate = []byte("MayaMelUIConfigurationFile")
 var mayaMelVirusNodeRegexp = regexp.MustCompile("createNode script -n \"MayaMelUIConfigurationFile\"[\\s\\S]+setAttr \".st\" 1;(.+)?\\s")
+
+// MaFileExt is extension maya file
+const MaFileExt = ".ma"
+
+// FilePermission is permissions for file
+const FilePermission = 0644
 
 // DeleteVaccineVirus removes the Vaccine node from the input data.
 func DeleteVaccineVirus(mayaFile []byte) []byte {
@@ -39,6 +46,21 @@ func CheckMayaMelVirus(mayaFile []byte) bool {
 	return bytes.Contains(mayaFile, mayaMelVirusTemplate)
 }
 
+// ReturnMayaFilesFromDirRecursively traverse the directory recursively and only return .ma files
+func ReturnMayaFilesFromDirRecursively(rootPath string) ([]string, error) {
+	var files []string
+	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			fileExtension := filepath.Ext(path)
+			if fileExtension == MaFileExt {
+				files = append(files, path)
+			}
+		}
+		return nil
+	})
+	return files, err
+}
+
 // ReturnMayaFilesFromDir returns .ma files from directory
 func ReturnMayaFilesFromDir(rootPath string) ([]string, error) {
 	var files []string
@@ -56,4 +78,10 @@ func ReturnMayaFilesFromDir(rootPath string) ([]string, error) {
 		}
 	}
 	return files, nil
+}
+
+// CreateBuckup create backup of processed the maya file
+func CreateBuckup(backupPath string, backupData []byte) error {
+	err := ioutil.WriteFile(backupPath, backupData, FilePermission)
+	return err
 }
