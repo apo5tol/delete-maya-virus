@@ -12,25 +12,6 @@ import (
 	"github.com/delete-maya-virus/utils"
 )
 
-var emptySymbol = []byte("")
-
-const filePermission = 0644
-const maFileExt = ".ma"
-
-func returnMayaFilesFromDir(root string) ([]string, error) {
-	var files []string
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			fileExtension := filepath.Ext(path)
-			if fileExtension == maFileExt {
-				files = append(files, path)
-			}
-		}
-		return nil
-	})
-	return files, err
-}
-
 func pressAnyKey() {
 	fmt.Print("Press 'Enter' to continue...")
 	bufio.NewReader(os.Stdin).ReadBytes('\n')

@@ -2,6 +2,8 @@ package utils
 
 import (
 	"bytes"
+	"io/ioutil"
+	"path/filepath"
 	"regexp"
 )
 
@@ -35,4 +37,23 @@ func CheckVaccineVirus(mayaFile []byte) bool {
 // CheckMayaMelVirus check if the input data contains MayaMelUIConfigurationFile node.
 func CheckMayaMelVirus(mayaFile []byte) bool {
 	return bytes.Contains(mayaFile, mayaMelVirusTemplate)
+}
+
+// ReturnMayaFilesFromDir returns .ma files from directory
+func ReturnMayaFilesFromDir(rootPath string) ([]string, error) {
+	var files []string
+	dirFiles, err := ioutil.ReadDir(rootPath)
+	if err != nil {
+		return files, err
+	}
+	for _, dirFile := range dirFiles {
+		if !dirFile.IsDir() {
+			filePath := filepath.Join(rootPath, dirFile.Name())
+			fileExtension := filepath.Ext(filePath)
+			if fileExtension == ".ma" {
+				files = append(files, filePath)
+			}
+		}
+	}
+	return files, nil
 }
