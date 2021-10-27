@@ -1,6 +1,12 @@
 # Delete maya virus
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/apo5tol/delete-maya-virus)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/apo5tol/delete-maya-virus/Go/main)
 
 Removes Vaccine and MayaMelUIConfigurationFile nodes from .ma files.
+
+## Download
+[Windows x64 version](https://github.com/apo5tol/delete-maya-virus/releases/download/v1.2/delete-maya-virus_windows_x64.exe)  
+[Linux x64 version](https://github.com/apo5tol/delete-maya-virus/releases/download/v1.2/delete-maya-virus_linux_x64)
 
 ## How to build
 
